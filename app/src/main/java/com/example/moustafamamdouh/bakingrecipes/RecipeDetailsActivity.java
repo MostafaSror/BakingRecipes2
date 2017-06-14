@@ -18,15 +18,26 @@ import android.widget.Toast;
 
 import com.example.moustafamamdouh.bakingrecipes.storage.DBContract;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import butterknife.OnClick;
+
 public class RecipeDetailsActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    @InjectView(R.id.Ingredients_button)
     Button ingredientsButton;
+
+    @InjectView(R.id.Steps_button)
     Button bakingStepsButton;
+
+    @InjectView(R.id.recipe_steps_list_view)
     ListView bakingStepsList;
+
     StepsListViewAdaptor stepsListViewAdaptor;
     StepsListViewAdaptor ingredientsListViewAdaptor;
     ListView IngredientsList;
 
+    int recipe_no;
     boolean isTablet;
 
     private final static int SHOW_BAKING_STEPS_LOADER = 15 ;
@@ -37,39 +48,41 @@ public class RecipeDetailsActivity extends AppCompatActivity implements LoaderMa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe_details);
 
+        ButterKnife.inject(this);
+
         if (findViewById(R.id.player_fragment_container) != null){
             isTablet = true;
         }else {
             isTablet = false;
         }
 
-        final int recipe_no = getIntent().getIntExtra(Intent.EXTRA_INTENT,0);
+        recipe_no = getIntent().getIntExtra(Intent.EXTRA_INTENT,0);
 
         stepsListViewAdaptor = new StepsListViewAdaptor(this, null, 0);
         ingredientsListViewAdaptor = new StepsListViewAdaptor(this, null, 0);
 
-        bakingStepsList = (ListView) findViewById(R.id.recipe_steps_list_view);
+        //bakingStepsList = (ListView) findViewById(R.id.recipe_steps_list_view);
         bakingStepsList.setAdapter(stepsListViewAdaptor);
 
         IngredientsList = (ListView) findViewById(R.id.recipe_ingredients_list_view);
         IngredientsList.setAdapter(ingredientsListViewAdaptor);
 
-        ingredientsButton = (Button) findViewById(R.id.Ingredients_button);
-        ingredientsButton.setOnClickListener(new View.OnClickListener() {
+    //    ingredientsButton = (Button) findViewById(R.id.Ingredients_button);
+    /*    ingredientsButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 IngredientsList.setVisibility(View.VISIBLE);
                 bakingStepsList.setVisibility(View.INVISIBLE);
                 showSteps(recipe_no,SHOW_INGREDIENTS_LOADER);
             }
-        });
-        bakingStepsButton = (Button) findViewById(R.id.Steps_button);
-        bakingStepsButton.setOnClickListener(new View.OnClickListener() {
+        });*/
+    //   bakingStepsButton = (Button) findViewById(R.id.Steps_button);
+        /*bakingStepsButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 IngredientsList.setVisibility(View.INVISIBLE);
                 bakingStepsList.setVisibility(View.VISIBLE);
                 showSteps(recipe_no , SHOW_BAKING_STEPS_LOADER);
             }
-        });
+        });*/
         bakingStepsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
@@ -116,6 +129,20 @@ public class RecipeDetailsActivity extends AppCompatActivity implements LoaderMa
         });
         showSteps(recipe_no, SHOW_BAKING_STEPS_LOADER);
     }
+
+    @OnClick(R.id.Ingredients_button)
+    public void doIngredientsButton(){
+        IngredientsList.setVisibility(View.VISIBLE);
+        bakingStepsList.setVisibility(View.INVISIBLE);
+        showSteps(recipe_no,SHOW_INGREDIENTS_LOADER);
+    }
+    @OnClick(R.id.Steps_button)
+    public void doStepsButton(){
+        IngredientsList.setVisibility(View.INVISIBLE);
+        bakingStepsList.setVisibility(View.VISIBLE);
+        showSteps(recipe_no , SHOW_BAKING_STEPS_LOADER);
+    }
+
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {

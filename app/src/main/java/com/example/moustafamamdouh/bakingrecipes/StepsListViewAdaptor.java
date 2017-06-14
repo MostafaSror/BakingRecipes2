@@ -11,11 +11,17 @@ import android.widget.TextView;
 
 import com.example.moustafamamdouh.bakingrecipes.storage.DBContract;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+
 /**
  * Created by Moustafa.Mamdouh on 6/10/2017.
  */
 
 public class StepsListViewAdaptor extends CursorAdapter {
+
+    @InjectView(R.id.baking_step_text_item)
+    TextView bakingStep;
 
     public StepsListViewAdaptor(Context context, Cursor c, int flags) {
 
@@ -30,8 +36,11 @@ public class StepsListViewAdaptor extends CursorAdapter {
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
+        ButterKnife.inject(this, view);
+
         if(cursor.getColumnCount() == 7) {
-            TextView bakingStep = (TextView) view.findViewById(R.id.baking_step_text_item);
+
+            //TextView bakingStep = (TextView) view.findViewById(R.id.baking_step_text_item);
             int tempInt = cursor.getInt(cursor.getColumnIndex(DBContract.StepsEntries.COLUMN_STEP_NO));
             String no = Integer.toString(tempInt);
             String temp = no + ". " +
