@@ -21,6 +21,7 @@ import com.example.moustafamamdouh.bakingrecipes.storage.DBContract;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
+import butterknife.OnItemClick;
 
 public class RecipeDetailsActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -83,7 +84,7 @@ public class RecipeDetailsActivity extends AppCompatActivity implements LoaderMa
                 showSteps(recipe_no , SHOW_BAKING_STEPS_LOADER);
             }
         });*/
-        bakingStepsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        /*bakingStepsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
@@ -126,7 +127,7 @@ public class RecipeDetailsActivity extends AppCompatActivity implements LoaderMa
                     }
                 }
             }
-        });
+        });*/
         showSteps(recipe_no, SHOW_BAKING_STEPS_LOADER);
     }
 
@@ -142,7 +143,48 @@ public class RecipeDetailsActivity extends AppCompatActivity implements LoaderMa
         bakingStepsList.setVisibility(View.VISIBLE);
         showSteps(recipe_no , SHOW_BAKING_STEPS_LOADER);
     }
+    @OnItemClick(R.id.recipe_steps_list_view)
+    public void onRecipeItemClick(AdapterView<?> adapterView, int position) {
+        Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
+        if (cursor != null) {
+            if(cursor.getString(cursor.getColumnIndex(DBContract.StepsEntries.COLUMN_VIDEOURL)) != null){
+                if(isTablet){
+                    Bundle args = new Bundle();
+                    args.putString(DBContract.StepsEntries.COLUMN_VIDEOURL,
+                            cursor.getString(cursor.getColumnIndex(DBContract.StepsEntries.COLUMN_VIDEOURL)));
+                    args.putString(DBContract.StepsEntries.COLUMN_DESCRIPTION,
+                            cursor.getString(cursor.getColumnIndex(DBContract.StepsEntries.COLUMN_DESCRIPTION)));
+                    PlayerFragment fragment = new PlayerFragment();
+                    fragment.setArguments(args);
+                    getSupportFragmentManager().beginTransaction().add(R.id.player_fragment_container,fragment).commit();
 
+                }else{
+                    Intent intent = new Intent(RecipeDetailsActivity.this , PlayerActivity.class);
+                    intent.putExtra(DBContract.StepsEntries.COLUMN_VIDEOURL,
+                            cursor.getString(cursor.getColumnIndex(DBContract.StepsEntries.COLUMN_VIDEOURL)));
+                    startActivity(intent);
+                }
+            }else if(cursor.getString(cursor.getColumnIndex(DBContract.StepsEntries.COLUMN_THUMBNAILURL)) != null){
+                if(isTablet){
+                    Bundle args = new Bundle();
+                    args.putString(DBContract.StepsEntries.COLUMN_VIDEOURL,
+                            cursor.getString(cursor.getColumnIndex(DBContract.StepsEntries.COLUMN_VIDEOURL)));
+                    args.putString(DBContract.StepsEntries.COLUMN_DESCRIPTION,
+                            cursor.getString(cursor.getColumnIndex(DBContract.StepsEntries.COLUMN_DESCRIPTION)));
+                    PlayerFragment fragment = new PlayerFragment();
+                    fragment.setArguments(args);
+                    getSupportFragmentManager().beginTransaction().add(R.id.player_fragment_container,fragment).commit();
+                }else {
+                    Intent intent = new Intent(RecipeDetailsActivity.this, PlayerActivity.class);
+                    intent.putExtra(DBContract.StepsEntries.COLUMN_VIDEOURL,
+                            cursor.getString(cursor.getColumnIndex(DBContract.StepsEntries.COLUMN_THUMBNAILURL)));
+                    startActivity(intent);
+                }
+            }else{
+                Toast.makeText(RecipeDetailsActivity.this, "This step has no video", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
