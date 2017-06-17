@@ -119,8 +119,8 @@ public class PlayerFragment extends Fragment implements  ExoPlayer.EventListener
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
+    public void onPause() {
+        super.onPause();
         releasePlayer();
         mMediaSession.setActive(false);
     }

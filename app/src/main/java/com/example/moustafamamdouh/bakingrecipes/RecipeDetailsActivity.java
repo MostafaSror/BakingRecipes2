@@ -8,6 +8,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.AdapterView;
@@ -23,7 +24,8 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.OnItemClick;
 
-public class RecipeDetailsActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class RecipeDetailsActivity extends AppCompatActivity implements DetailsViewAdaptor.ListItemClickListener,
+        LoaderManager.LoaderCallbacks<Cursor> {
 
     @InjectView(R.id.Ingredients_button)
     Button ingredientsButton;
@@ -31,12 +33,16 @@ public class RecipeDetailsActivity extends AppCompatActivity implements LoaderMa
     @InjectView(R.id.Steps_button)
     Button bakingStepsButton;
 
-    @InjectView(R.id.recipe_steps_list_view)
-    ListView bakingStepsList;
-
-    StepsListViewAdaptor stepsListViewAdaptor;
+    /*@InjectView(R.id.recipe_steps_list_view)
+    ListView bakingStepsList;*/
+    /*StepsListViewAdaptor stepsListViewAdaptor;
     StepsListViewAdaptor ingredientsListViewAdaptor;
     ListView IngredientsList;
+*/
+    RecyclerView IngredientsList;
+    RecyclerView bakingStepsList;
+    DetailsViewAdaptor stepsListViewAdaptor;
+    DetailsViewAdaptor ingredientsListViewAdaptor;
 
     int recipe_no;
     boolean isTablet;
@@ -59,13 +65,18 @@ public class RecipeDetailsActivity extends AppCompatActivity implements LoaderMa
 
         recipe_no = getIntent().getIntExtra(Intent.EXTRA_INTENT,0);
 
-        stepsListViewAdaptor = new StepsListViewAdaptor(this, null, 0);
-        ingredientsListViewAdaptor = new StepsListViewAdaptor(this, null, 0);
+        stepsListViewAdaptor = new DetailsViewAdaptor(this, this);
+        ingredientsListViewAdaptor = new DetailsViewAdaptor(this, this);
 
-        //bakingStepsList = (ListView) findViewById(R.id.recipe_steps_list_view);
+        LinearLayoutManager stepsLayoutManager = new LinearLayoutManager(this);
+        LinearLayoutManager ingredientsLayoutManager = new LinearLayoutManager(this);
+
+        bakingStepsList = (RecyclerView) findViewById(R.id.recipe_steps_list_view);
+        bakingStepsList.setLayoutManager(stepsLayoutManager);
         bakingStepsList.setAdapter(stepsListViewAdaptor);
 
-        IngredientsList = (ListView) findViewById(R.id.recipe_ingredients_list_view);
+        IngredientsList = (RecyclerView) findViewById(R.id.recipe_ingredients_list_view);
+        IngredientsList.setLayoutManager(ingredientsLayoutManager);
         IngredientsList.setAdapter(ingredientsListViewAdaptor);
 
     //    ingredientsButton = (Button) findViewById(R.id.Ingredients_button);
@@ -143,27 +154,27 @@ public class RecipeDetailsActivity extends AppCompatActivity implements LoaderMa
         bakingStepsList.setVisibility(View.VISIBLE);
         showSteps(recipe_no , SHOW_BAKING_STEPS_LOADER);
     }
-    @OnItemClick(R.id.recipe_steps_list_view)
+    /*@OnItemClick(R.id.recipe_steps_list_view)
     public void onRecipeItemClick(AdapterView<?> adapterView, int position) {
         Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
         if (cursor != null) {
             if(cursor.getString(cursor.getColumnIndex(DBContract.StepsEntries.COLUMN_VIDEOURL)) != null){
-                if(isTablet){
-                    Bundle args = new Bundle();
-                    args.putString(DBContract.StepsEntries.COLUMN_VIDEOURL,
-                            cursor.getString(cursor.getColumnIndex(DBContract.StepsEntries.COLUMN_VIDEOURL)));
-                    args.putString(DBContract.StepsEntries.COLUMN_DESCRIPTION,
-                            cursor.getString(cursor.getColumnIndex(DBContract.StepsEntries.COLUMN_DESCRIPTION)));
-                    PlayerFragment fragment = new PlayerFragment();
-                    fragment.setArguments(args);
-                    getSupportFragmentManager().beginTransaction().add(R.id.player_fragment_container,fragment).commit();
+                    if(isTablet){
+                        Bundle args = new Bundle();
+                        args.putString(DBContract.StepsEntries.COLUMN_VIDEOURL,
+                                cursor.getString(cursor.getColumnIndex(DBContract.StepsEntries.COLUMN_VIDEOURL)));
+                        args.putString(DBContract.StepsEntries.COLUMN_DESCRIPTION,
+                                cursor.getString(cursor.getColumnIndex(DBContract.StepsEntries.COLUMN_DESCRIPTION)));
+                        PlayerFragment fragment = new PlayerFragment();
+                        fragment.setArguments(args);
+                        getSupportFragmentManager().beginTransaction().add(R.id.player_fragment_container,fragment).commit();
 
-                }else{
-                    Intent intent = new Intent(RecipeDetailsActivity.this , PlayerActivity.class);
-                    intent.putExtra(DBContract.StepsEntries.COLUMN_VIDEOURL,
-                            cursor.getString(cursor.getColumnIndex(DBContract.StepsEntries.COLUMN_VIDEOURL)));
-                    startActivity(intent);
-                }
+                    }else{
+                        Intent intent = new Intent(RecipeDetailsActivity.this , PlayerActivity.class);
+                        intent.putExtra(DBContract.StepsEntries.COLUMN_VIDEOURL,
+                                cursor.getString(cursor.getColumnIndex(DBContract.StepsEntries.COLUMN_VIDEOURL)));
+                        startActivity(intent);
+                    }
             }else if(cursor.getString(cursor.getColumnIndex(DBContract.StepsEntries.COLUMN_THUMBNAILURL)) != null){
                 if(isTablet){
                     Bundle args = new Bundle();
@@ -184,7 +195,7 @@ public class RecipeDetailsActivity extends AppCompatActivity implements LoaderMa
                 Toast.makeText(RecipeDetailsActivity.this, "This step has no video", Toast.LENGTH_SHORT).show();
             }
         }
-    }
+    }*/
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -242,5 +253,30 @@ public class RecipeDetailsActivity extends AppCompatActivity implements LoaderMa
                 loaderManager.restartLoader(SHOW_INGREDIENTS_LOADER, args,this).forceLoad();
             }
         }
+    }
+
+    @Override
+    public void onListItemClick(ContentValues contentValues) {
+        if(contentValues.getAsString(DBContract.StepsEntries.COLUMN_VIDEOURL) != null){
+            if(isTablet){
+                Bundle args = new Bundle();
+                args.putString(DBContract.StepsEntries.COLUMN_VIDEOURL,
+                        contentValues.getAsString(DBContract.StepsEntries.COLUMN_VIDEOURL));
+                args.putString(DBContract.StepsEntries.COLUMN_DESCRIPTION,
+                        contentValues.getAsString(DBContract.StepsEntries.COLUMN_DESCRIPTION));
+                PlayerFragment fragment = new PlayerFragment();
+                fragment.setArguments(args);
+                getSupportFragmentManager().beginTransaction().add(R.id.player_fragment_container,fragment).commit();
+
+            }else{
+                Intent intent = new Intent(RecipeDetailsActivity.this , PlayerActivity.class);
+                intent.putExtra(DBContract.StepsEntries.COLUMN_VIDEOURL,
+                        contentValues.getAsString(DBContract.StepsEntries.COLUMN_VIDEOURL));
+                startActivity(intent);
+            }
+        }else {
+            Toast.makeText(RecipeDetailsActivity.this, "This step has no video", Toast.LENGTH_SHORT).show();
+        }
+
     }
 }

@@ -105,9 +105,10 @@ public class PlayerActivity extends AppCompatActivity implements  ExoPlayer.Even
         mExoPlayer.release();
         mExoPlayer = null;
     }
+
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onPause() {
+        super.onPause();
         releasePlayer();
         mMediaSession.setActive(false);
     }
