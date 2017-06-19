@@ -39,7 +39,7 @@ public class UpdateWidgetRecipesService extends IntentService {
 
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
         int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(this, RecipeWidgetProvider.class));
-        RecipeWidgetProvider.updateRecipesWidget(this, appWidgetManager , temp, tempInt , appWidgetIds );
+        //RecipeWidgetProvider.updateRecipesWidget(this, appWidgetManager , temp, tempInt , appWidgetIds );
 
         x++;
     }
